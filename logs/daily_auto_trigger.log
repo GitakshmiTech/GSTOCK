@@ -84,3 +84,104 @@ running.
 
 [2026-10-13 16:24:11] Daily Ingestion Workflow Finished.
 
+==========================================================
+[2026-10-14 16:00:01] Starting Automated 4:00 PM EOD Bhavcopy Ingestion
+==========================================================
+Running Daily EOD Update for 2026-10-14...
+2026-10-14 16:00:03 [INFO] nse_pipeline.services.daily_update (daily_update_service.py:52): Initiating daily EOD update for 2026-10-14 (Job: daily_20261014_edbddf)
+2026-10-14 16:00:03 [INFO] nse_pipeline.downloader.download_manager (download_manager.py:123): Trying URL for 2026-10-14: https://nsearchives.nseindia.com/content/cm/BhavCopy_NSE_CM_0_0_0_20261014_F_0000.csv.zip
+2026-10-14 16:00:04 [INFO] httpx (_client.py:1025): HTTP Request: GET https://www.nseindia.com/all-reports "HTTP/1.1 200 OK"
+2026-10-14 16:00:04 [INFO] nse_pipeline.clients.public_archive_client (public_archive_client.py:71): Downloading from https://nsearchives.nseindia.com/content/cm/BhavCopy_NSE_CM_0_0_0_20261014_F_0000.csv.zip to data/raw/2026/10/BhavCopy_NSE_CM_0_0_0_20261014_F_0000.csv.zip...
+2026-10-14 16:00:05 [INFO] httpx (_client.py:1025): HTTP Request: GET https://nsearchives.nseindia.com/content/cm/BhavCopy_NSE_CM_0_0_0_20261014_F_0000.csv.zip "HTTP/1.1 404 Not Found"
+2026-10-14 16:00:05 [INFO] nse_pipeline.downloader.download_manager (download_manager.py:123): Trying URL for 2026-10-14: https://archives.nseindia.com/content/cm/BhavCopy_NSE_CM_0_0_0_20261014_F_0000.csv.zip
+2026-10-14 16:00:05 [INFO] nse_pipeline.clients.public_archive_client (public_archive_client.py:71): Downloading from https://archives.nseindia.com/content/cm/BhavCopy_NSE_CM_0_0_0_20261014_F_0000.csv.zip to data/raw/2026/10/BhavCopy_NSE_CM_0_0_0_20261014_F_0000.csv.zip...
+2026-10-14 16:00:06 [INFO] httpx (_client.py:1025): HTTP Request: GET https://archives.nseindia.com/content/cm/BhavCopy_NSE_CM_0_0_0_20261014_F_0000.csv.zip "HTTP/1.1 404 Not Found"
+2026-10-14 16:00:06 [INFO] nse_pipeline.downloader.download_manager (download_manager.py:123): Trying URL for 2026-10-14: https://archives.nseindia.com/products/content/sec_bhavdata_full_14102026.csv
+2026-10-14 16:00:06 [INFO] nse_pipeline.clients.public_archive_client (public_archive_client.py:71): Downloading from https://archives.nseindia.com/products/content/sec_bhavdata_full_14102026.csv to data/raw/2026/10/BhavCopy_NSE_CM_0_0_0_20261014_F_0000.csv.zip...
+2026-10-14 16:00:07 [INFO] httpx (_client.py:1025): HTTP Request: GET https://archives.nseindia.com/products/content/sec_bhavdata_full_14102026.csv "HTTP/1.1 404 Not Found"
+2026-10-14 16:00:07 [WARNING] nse_pipeline.downloader.download_manager (download_manager.py:136): No archive available for trade date 2026-10-14
+2026-10-14 16:00:07 [INFO] nse_pipeline.services.daily_update (daily_update_service.py:80): EOD file not yet published. Retrying in 60s... (3s / 3600s elapsed)
+2026-10-14 16:01:07 [INFO] nse_pipeline.downloader.download_manager (download_manager.py:123): Trying URL for 2026-10-14: https://nsearchives.nseindia.com/content/cm/BhavCopy_NSE_CM_0_0_0_20261014_F_0000.csv.zip
+2026-10-14 16:01:07 [INFO] nse_pipeline.clients.public_archive_client (public_archive_client.py:71): Downloading from https://nsearchives.nseindia.com/content/cm/BhavCopy_NSE_CM_0_0_0_20261014_F_0000.csv.zip to data/raw/2026/10/BhavCopy_NSE_CM_0_0_0_20261014_F_0000.csv.zip...
+2026-10-14 16:01:07 [INFO] httpx (_client.py:1025): HTTP Request: GET https://nsearchives.nseindia.com/content/cm/BhavCopy_NSE_CM_0_0_0_20261014_F_0000.csv.zip "HTTP/1.1 404 Not Found"
+2026-10-14 16:01:07 [INFO] nse_pipeline.downloader.download_manager (download_manager.py:123): Trying URL for 2026-10-14: https://archives.nseindia.com/content/cm/BhavCopy_NSE_CM_0_0_0_20261014_F_0000.csv.zip
+2026-10-14 16:01:07 [INFO] nse_pipeline.clients.public_archive_client (public_archive_client.py:71): Downloading from https://archives.nseindia.com/content/cm/BhavCopy_NSE_CM_0_0_0_20261014_F_0000.csv.zip to data/raw/2026/10/BhavCopy_NSE_CM_0_0_0_20261014_F_0000.csv.zip...
+2026-10-14 16:01:08 [INFO] httpx (_client.py:1025): HTTP Request: GET https://archives.nseindia.com/content/cm/BhavCopy_NSE_CM_0_0_0_20261014_F_0000.csv.zip "HTTP/1.1 404 Not Found"
+2026-10-14 16:01:08 [INFO] nse_pipeline.downloader.download_manager (download_manager.py:123): Trying URL for 2026-10-14: https://archives.nseindia.com/products/content/sec_bhavdata_full_14102026.csv
+2026-10-14 16:01:08 [INFO] nse_pipeline.clients.public_archive_client (public_archive_client.py:71): Downloading from https://archives.nseindia.com/products/content/sec_bhavdata_full_14102026.csv to data/raw/2026/10/BhavCopy_NSE_CM_0_0_0_20261014_F_0000.csv.zip...
+2026-10-14 16:01:08 [INFO] httpx (_client.py:1025): HTTP Request: GET https://archives.nseindia.com/products/content/sec_bhavdata_full_14102026.csv "HTTP/1.1 404 Not Found"
+2026-10-14 16:01:08 [WARNING] nse_pipeline.downloader.download_manager (download_manager.py:136): No archive available for trade date 2026-10-14
+2026-10-14 16:01:08 [INFO] nse_pipeline.services.daily_update (daily_update_service.py:80): EOD file not yet published. Retrying in 120s... (65s / 3600s elapsed)
+2026-10-14 16:03:08 [INFO] nse_pipeline.downloader.download_manager (download_manager.py:123): Trying URL for 2026-10-14: https://nsearchives.nseindia.com/content/cm/BhavCopy_NSE_CM_0_0_0_20261014_F_0000.csv.zip
+2026-10-14 16:03:08 [INFO] nse_pipeline.clients.public_archive_client (public_archive_client.py:71): Downloading from https://nsearchives.nseindia.com/content/cm/BhavCopy_NSE_CM_0_0_0_20261014_F_0000.csv.zip to data/raw/2026/10/BhavCopy_NSE_CM_0_0_0_20261014_F_0000.csv.zip...
+2026-10-14 16:03:09 [INFO] httpx (_client.py:1025): HTTP Request: GET https://nsearchives.nseindia.com/content/cm/BhavCopy_NSE_CM_0_0_0_20261014_F_0000.csv.zip "HTTP/1.1 404 Not Found"
+2026-10-14 16:03:09 [INFO] nse_pipeline.downloader.download_manager (download_manager.py:123): Trying URL for 2026-10-14: https://archives.nseindia.com/content/cm/BhavCopy_NSE_CM_0_0_0_20261014_F_0000.csv.zip
+2026-10-14 16:03:09 [INFO] nse_pipeline.clients.public_archive_client (public_archive_client.py:71): Downloading from https://archives.nseindia.com/content/cm/BhavCopy_NSE_CM_0_0_0_20261014_F_0000.csv.zip to data/raw/2026/10/BhavCopy_NSE_CM_0_0_0_20261014_F_0000.csv.zip...
+2026-10-14 16:03:10 [INFO] httpx (_client.py:1025): HTTP Request: GET https://archives.nseindia.com/content/cm/BhavCopy_NSE_CM_0_0_0_20261014_F_0000.csv.zip "HTTP/1.1 404 Not Found"
+2026-10-14 16:03:10 [INFO] nse_pipeline.downloader.download_manager (download_manager.py:123): Trying URL for 2026-10-14: https://archives.nseindia.com/products/content/sec_bhavdata_full_14102026.csv
+2026-10-14 16:03:10 [INFO] nse_pipeline.clients.public_archive_client (public_archive_client.py:71): Downloading from https://archives.nseindia.com/products/content/sec_bhavdata_full_14102026.csv to data/raw/2026/10/BhavCopy_NSE_CM_0_0_0_20261014_F_0000.csv.zip...
+2026-10-14 16:03:10 [INFO] httpx (_client.py:1025): HTTP Request: GET https://archives.nseindia.com/products/content/sec_bhavdata_full_14102026.csv "HTTP/1.1 404 Not Found"
+2026-10-14 16:03:10 [WARNING] nse_pipeline.downloader.download_manager (download_manager.py:136): No archive available for trade date 2026-10-14
+2026-10-14 16:03:10 [INFO] nse_pipeline.services.daily_update (daily_update_service.py:80): EOD file not yet published. Retrying in 240s... (187s / 3600s elapsed)
+2026-10-14 16:07:11 [INFO] nse_pipeline.downloader.download_manager (download_manager.py:123): Trying URL for 2026-10-14: https://nsearchives.nseindia.com/content/cm/BhavCopy_NSE_CM_0_0_0_20261014_F_0000.csv.zip
+2026-10-14 16:07:11 [INFO] nse_pipeline.clients.public_archive_client (public_archive_client.py:71): Downloading from https://nsearchives.nseindia.com/content/cm/BhavCopy_NSE_CM_0_0_0_20261014_F_0000.csv.zip to data/raw/2026/10/BhavCopy_NSE_CM_0_0_0_20261014_F_0000.csv.zip...
+2026-10-14 16:07:11 [INFO] httpx (_client.py:1025): HTTP Request: GET https://nsearchives.nseindia.com/content/cm/BhavCopy_NSE_CM_0_0_0_20261014_F_0000.csv.zip "HTTP/1.1 404 Not Found"
+2026-10-14 16:07:11 [INFO] nse_pipeline.downloader.download_manager (download_manager.py:123): Trying URL for 2026-10-14: https://archives.nseindia.com/content/cm/BhavCopy_NSE_CM_0_0_0_20261014_F_0000.csv.zip
+2026-10-14 16:07:11 [INFO] nse_pipeline.clients.public_archive_client (public_archive_client.py:71): Downloading from https://archives.nseindia.com/content/cm/BhavCopy_NSE_CM_0_0_0_20261014_F_0000.csv.zip to data/raw/2026/10/BhavCopy_NSE_CM_0_0_0_20261014_F_0000.csv.zip...
+2026-10-14 16:07:12 [INFO] httpx (_client.py:1025): HTTP Request: GET https://archives.nseindia.com/content/cm/BhavCopy_NSE_CM_0_0_0_20261014_F_0000.csv.zip "HTTP/1.1 404 Not Found"
+2026-10-14 16:07:12 [INFO] nse_pipeline.downloader.download_manager (download_manager.py:123): Trying URL for 2026-10-14: https://archives.nseindia.com/products/content/sec_bhavdata_full_14102026.csv
+2026-10-14 16:07:12 [INFO] nse_pipeline.clients.public_archive_client (public_archive_client.py:71): Downloading from https://archives.nseindia.com/products/content/sec_bhavdata_full_14102026.csv to data/raw/2026/10/BhavCopy_NSE_CM_0_0_0_20261014_F_0000.csv.zip...
+2026-10-14 16:07:12 [INFO] httpx (_client.py:1025): HTTP Request: GET https://archives.nseindia.com/products/content/sec_bhavdata_full_14102026.csv "HTTP/1.1 404 Not Found"
+2026-10-14 16:07:12 [WARNING] nse_pipeline.downloader.download_manager (download_manager.py:136): No archive available for trade date 2026-10-14
+2026-10-14 16:07:12 [INFO] nse_pipeline.services.daily_update (daily_update_service.py:80): EOD file not yet published. Retrying in 480s... (429s / 3600s elapsed)
+2026-10-14 16:15:12 [INFO] nse_pipeline.downloader.download_manager (download_manager.py:123): Trying URL for 2026-10-14: https://nsearchives.nseindia.com/content/cm/BhavCopy_NSE_CM_0_0_0_20261014_F_0000.csv.zip
+2026-10-14 16:15:12 [INFO] nse_pipeline.clients.public_archive_client (public_archive_client.py:71): Downloading from https://nsearchives.nseindia.com/content/cm/BhavCopy_NSE_CM_0_0_0_20261014_F_0000.csv.zip to data/raw/2026/10/BhavCopy_NSE_CM_0_0_0_20261014_F_0000.csv.zip...
+2026-10-14 16:15:13 [INFO] httpx (_client.py:1025): HTTP Request: GET https://nsearchives.nseindia.com/content/cm/BhavCopy_NSE_CM_0_0_0_20261014_F_0000.csv.zip "HTTP/1.1 404 Not Found"
+2026-10-14 16:15:13 [INFO] nse_pipeline.downloader.download_manager (download_manager.py:123): Trying URL for 2026-10-14: https://archives.nseindia.com/content/cm/BhavCopy_NSE_CM_0_0_0_20261014_F_0000.csv.zip
+2026-10-14 16:15:13 [INFO] nse_pipeline.clients.public_archive_client (public_archive_client.py:71): Downloading from https://archives.nseindia.com/content/cm/BhavCopy_NSE_CM_0_0_0_20261014_F_0000.csv.zip to data/raw/2026/10/BhavCopy_NSE_CM_0_0_0_20261014_F_0000.csv.zip...
+2026-10-14 16:15:14 [INFO] httpx (_client.py:1025): HTTP Request: GET https://archives.nseindia.com/content/cm/BhavCopy_NSE_CM_0_0_0_20261014_F_0000.csv.zip "HTTP/1.1 404 Not Found"
+2026-10-14 16:15:14 [INFO] nse_pipeline.downloader.download_manager (download_manager.py:123): Trying URL for 2026-10-14: https://archives.nseindia.com/products/content/sec_bhavdata_full_14102026.csv
+2026-10-14 16:15:14 [INFO] nse_pipeline.clients.public_archive_client (public_archive_client.py:71): Downloading from https://archives.nseindia.com/products/content/sec_bhavdata_full_14102026.csv to data/raw/2026/10/BhavCopy_NSE_CM_0_0_0_20261014_F_0000.csv.zip...
+2026-10-14 16:15:14 [INFO] httpx (_client.py:1025): HTTP Request: GET https://archives.nseindia.com/products/content/sec_bhavdata_full_14102026.csv "HTTP/1.1 404 Not Found"
+2026-10-14 16:15:14 [WARNING] nse_pipeline.downloader.download_manager (download_manager.py:136): No archive available for trade date 2026-10-14
+2026-10-14 16:15:14 [INFO] nse_pipeline.services.daily_update (daily_update_service.py:80): EOD file not yet published. Retrying in 600s... (911s / 3600s elapsed)
+2026-10-14 16:25:15 [INFO] nse_pipeline.downloader.download_manager (download_manager.py:123): Trying URL for 2026-10-14: https://nsearchives.nseindia.com/content/cm/BhavCopy_NSE_CM_0_0_0_20261014_F_0000.csv.zip
+2026-10-14 16:25:15 [INFO] nse_pipeline.clients.public_archive_client (public_archive_client.py:71): Downloading from https://nsearchives.nseindia.com/content/cm/BhavCopy_NSE_CM_0_0_0_20261014_F_0000.csv.zip to data/raw/2026/10/BhavCopy_NSE_CM_0_0_0_20261014_F_0000.csv.zip...
+2026-10-14 16:25:41 [WARNING] nse_pipeline.clients.public_archive_client (public_archive_client.py:91): Network request error for https://nsearchives.nseindia.com/content/cm/BhavCopy_NSE_CM_0_0_0_20261014_F_0000.csv.zip: [SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1082)
+2026-10-14 16:25:41 [WARNING] nse_pipeline.downloader.download_manager (download_manager.py:132): Download attempt failed for https://nsearchives.nseindia.com/content/cm/BhavCopy_NSE_CM_0_0_0_20261014_F_0000.csv.zip: Network error while downloading https://nsearchives.nseindia.com/content/cm/BhavCopy_NSE_CM_0_0_0_20261014_F_0000.csv.zip: [SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1082)
+2026-10-14 16:25:41 [INFO] nse_pipeline.downloader.download_manager (download_manager.py:123): Trying URL for 2026-10-14: https://archives.nseindia.com/content/cm/BhavCopy_NSE_CM_0_0_0_20261014_F_0000.csv.zip
+2026-10-14 16:25:41 [INFO] nse_pipeline.clients.public_archive_client (public_archive_client.py:71): Downloading from https://archives.nseindia.com/content/cm/BhavCopy_NSE_CM_0_0_0_20261014_F_0000.csv.zip to data/raw/2026/10/BhavCopy_NSE_CM_0_0_0_20261014_F_0000.csv.zip...
+2026-10-14 16:26:33 [WARNING] nse_pipeline.clients.public_archive_client (public_archive_client.py:91): Network request error for https://archives.nseindia.com/content/cm/BhavCopy_NSE_CM_0_0_0_20261014_F_0000.csv.zip: [SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1082)
+2026-10-14 16:26:33 [WARNING] nse_pipeline.downloader.download_manager (download_manager.py:132): Download attempt failed for https://archives.nseindia.com/content/cm/BhavCopy_NSE_CM_0_0_0_20261014_F_0000.csv.zip: Network error while downloading https://archives.nseindia.com/content/cm/BhavCopy_NSE_CM_0_0_0_20261014_F_0000.csv.zip: [SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1082)
+2026-10-14 16:26:33 [INFO] nse_pipeline.downloader.download_manager (download_manager.py:123): Trying URL for 2026-10-14: https://archives.nseindia.com/products/content/sec_bhavdata_full_14102026.csv
+2026-10-14 16:26:33 [INFO] nse_pipeline.clients.public_archive_client (public_archive_client.py:71): Downloading from https://archives.nseindia.com/products/content/sec_bhavdata_full_14102026.csv to data/raw/2026/10/BhavCopy_NSE_CM_0_0_0_20261014_F_0000.csv.zip...
+2026-10-14 16:28:20 [WARNING] nse_pipeline.clients.public_archive_client (public_archive_client.py:91): Network request error for https://archives.nseindia.com/products/content/sec_bhavdata_full_14102026.csv: _ssl.c:1064: The handshake operation timed out
+2026-10-14 16:28:20 [WARNING] nse_pipeline.downloader.download_manager (download_manager.py:132): Download attempt failed for https://archives.nseindia.com/products/content/sec_bhavdata_full_14102026.csv: Network error while downloading https://archives.nseindia.com/products/content/sec_bhavdata_full_14102026.csv: _ssl.c:1064: The handshake operation timed out
+2026-10-14 16:28:20 [WARNING] nse_pipeline.downloader.download_manager (download_manager.py:136): No archive available for trade date 2026-10-14
+2026-10-14 16:28:20 [INFO] nse_pipeline.services.daily_update (daily_update_service.py:80): EOD file not yet published. Retrying in 600s... (1697s / 3600s elapsed)
+2026-10-14 16:38:20 [INFO] nse_pipeline.downloader.download_manager (download_manager.py:123): Trying URL for 2026-10-14: https://nsearchives.nseindia.com/content/cm/BhavCopy_NSE_CM_0_0_0_20261014_F_0000.csv.zip
+2026-10-14 16:38:20 [INFO] nse_pipeline.clients.public_archive_client (public_archive_client.py:71): Downloading from https://nsearchives.nseindia.com/content/cm/BhavCopy_NSE_CM_0_0_0_20261014_F_0000.csv.zip to data/raw/2026/10/BhavCopy_NSE_CM_0_0_0_20261014_F_0000.csv.zip...
+2026-10-14 16:38:21 [INFO] httpx (_client.py:1025): HTTP Request: GET https://nsearchives.nseindia.com/content/cm/BhavCopy_NSE_CM_0_0_0_20261014_F_0000.csv.zip "HTTP/1.1 200 OK"
+2026-10-14 16:38:22 [INFO] nse_pipeline.clients.public_archive_client (public_archive_client.py:85): Successfully downloaded BhavCopy_NSE_CM_0_0_0_20261014_F_0000.csv.zip (205416 bytes)
+2026-10-14 16:38:22 [INFO] nse_pipeline.database.connection (connection.py:38): Attempting connection to MySQL at localhost:3306/nse_market_data?charset=utf8mb4
+2026-10-14 16:38:22 [WARNING] nse_pipeline.database.connection (connection.py:53): Could not connect to MySQL: (pymysql.err.OperationalError) (1045, "Access denied for user 'nse_app'@'localhost' (using password: YES)")
+(Background on this error at: https://sqlalche.me/e/21/e3q8)
+2026-10-14 16:38:22 [INFO] nse_pipeline.database.connection (connection.py:56): Falling back to SQLite database for development and test execution.
+2026-10-14 16:38:22 [INFO] nse_pipeline.database.connection (connection.py:66): Connected to SQLite at ./data/nse_market_data.db
+2026-10-14 16:38:22 [INFO] nse_pipeline.services.ingestion (ingestion_service.py:230): Starting ingestion of BhavCopy_NSE_CM_0_0_0_20261014_F_0000.csv.zip (Job: daily_20261014_edbddf)
+2026-10-14 16:38:23 [INFO] nse_pipeline.services.ingestion (ingestion_service.py:250): Parsed 3414 raw rows from BhavCopy_NSE_CM_0_0_0_20261014_F_0000.csv.zip
+2026-10-14 16:38:23 [INFO] nse_pipeline.services.ingestion (ingestion_service.py:270): Validation complete for 2026-10-14: 3414 valid, 0 rejected, 0 warnings, 0 errors
+2026-10-14 16:38:30 [INFO] nse_pipeline.services.ingestion (ingestion_service.py:325): Successfully upserted 3414 records for 2026-10-14 (3414 inserted, 0 updated)
+2026-10-14 16:38:30 [INFO] nse_pipeline.services.daily_update (daily_update_service.py:110): Daily update completed successfully for 2026-10-14. Inserted 3414 rows.
+                           Daily Update Result                           
+┏━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ Property              ┃ Value                                         ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┩
+│ Trade Date            │ 2026-10-14                                    │
+│ Status                │ IMPORTED                                      │
+│ Source File           │ BhavCopy_NSE_CM_0_0_0_20261014_F_0000.csv.zip │
+│ Rows Inserted/Updated │ 3414                                          │
+│ Rows Rejected         │ 0                                             │
+└───────────────────────┴───────────────────────────────────────────────┘
+[2026-10-14 16:38:31] Daily Ingestion Workflow Finished.
+

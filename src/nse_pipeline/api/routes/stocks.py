@@ -32,6 +32,9 @@ def search_stocks(
             "status": s.status,
             "first_traded_date": s.first_traded_date.isoformat() if s.first_traded_date else None,
             "last_traded_date": s.last_traded_date.isoformat() if s.last_traded_date else None,
+            "is_active": s.is_active,
+            "is_delisted": s.is_delisted,
+            "trading_status": s.trading_status,
         }
         for s in results
     ]

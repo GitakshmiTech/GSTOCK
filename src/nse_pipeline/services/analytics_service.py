@@ -78,18 +78,35 @@ class AnalyticsService:
 
         # Replace NaN with None for JSON serialization
         records_out = df.replace({np.nan: None}).to_dict(orient="records")
+        end_date_str = df["trade_date"].iloc[-1] if len(df) > 0 else None
+        is_delisted = bool(end_date_str and end_date_str < "2026-07-15")
+        is_active = not is_delisted
+        status = "DELISTED" if is_delisted else "ACTIVE"
+        status_message = (
+            f"Delisted / Inactive on NSE. Last traded on {end_date_str}."
+            if is_delisted
+            else None
+        )
 
         return {
             "symbol": symbol.upper(),
             "series": series.upper(),
             "records_count": len(records_out),
+            "is_active": is_active,
+            "is_delisted": is_delisted,
+            "status": status,
+            "status_message": status_message,
             "summary": {
                 "latest_close": df["close"].iloc[-1] if len(df) > 0 else None,
                 "total_return_pct": round(total_return, 2),
                 "annualized_volatility_pct": round(annualized_volatility, 2),
                 "max_drawdown_pct": round(max_drawdown, 2),
                 "start_date": df["trade_date"].iloc[0] if len(df) > 0 else None,
-                "end_date": df["trade_date"].iloc[-1] if len(df) > 0 else None,
+                "end_date": end_date_str,
+                "is_active": is_active,
+                "is_delisted": is_delisted,
+                "status": status,
+                "status_message": status_message,
             },
             "data": records_out,
             "prices": records_out,
@@ -311,8 +328,25 @@ class AnalyticsService:
                 weekday_med[wd] = 0.0
                 weekday_win[wd] = 0.0
 
+        end_d_str = df["trade_date"].dt.strftime("%Y-%m-%d").iloc[-1] if not df.empty else None
+        start_d_str = df["trade_date"].dt.strftime("%Y-%m-%d").iloc[0] if not df.empty else None
+        is_delisted = bool(end_d_str and end_d_str < "2026-07-15")
+        is_active = not is_delisted
+        status = "DELISTED" if is_delisted else "ACTIVE"
+        status_message = (
+            f"Delisted / Inactive on NSE. Last traded on {end_d_str}."
+            if is_delisted
+            else None
+        )
+
         return {
             "symbol": symbol.upper(),
+            "start_date": start_d_str,
+            "end_date": end_d_str,
+            "is_active": is_active,
+            "is_delisted": is_delisted,
+            "status": status,
+            "status_message": status_message,
             "monthly_averages": monthly_averages_short,
             "monthly_seasonality": monthly_averages_short,
             "win_rates": win_rates_dict,

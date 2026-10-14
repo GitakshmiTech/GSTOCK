@@ -138,8 +138,16 @@ export async function deleteUser(userId: number): Promise<void> {
   }
 }
 
-export async function fetchSecurities(q: string = '', limit: number = 5000): Promise<SecurityMasterItem[]> {
-  const params = new URLSearchParams({ q, limit: limit.toString() });
+export async function fetchSecurities(
+  q: string = '',
+  limit: number = 5000,
+  sharesOnly: boolean = true
+): Promise<SecurityMasterItem[]> {
+  const params = new URLSearchParams({
+    q,
+    limit: limit.toString(),
+    shares_only: sharesOnly.toString(),
+  });
   const res = await fetch(`${API_BASE}/api/v1/securities?${params.toString()}`);
   if (!res.ok) throw new Error('Failed to fetch securities');
   return res.json();

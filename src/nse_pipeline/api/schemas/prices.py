@@ -37,6 +37,9 @@ class SecuritySchema(BaseModel):
     status: str
     first_traded_date: date | None = None
     last_traded_date: date | None = None
+    is_active: bool = True
+    is_delisted: bool = False
+    trading_status: str = "ACTIVE"
 
 
 class DailyMarketItemSchema(BaseModel):

@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { MarketOverviewData, SecurityMasterItem } from '../types';
 import { fetchMarketOverview, fetchSecurities } from '../services/api';
+import { isShare, resolveCanonicalSymbol, isDelisted } from '../utils/securityUtils';
 import { MarketOverview } from '../components/dashboard/MarketOverview';
 import { MarketMovers } from '../components/dashboard/MarketMovers';
 import { MarketCharts } from '../components/dashboard/MarketCharts';
@@ -19,7 +20,8 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
   // Securities catalog for stock search and dropdown
   const [securities, setSecurities] = useState<SecurityMasterItem[]>([]);
   const [selectedStock, setSelectedStock] = useState<string>(() => {
-    return sessionStorage.getItem('selected_stock_symbol') || '';
+    const stored = sessionStorage.getItem('selected_stock_symbol');
+    return stored ? resolveCanonicalSymbol(stored) : '';
   });
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -40,30 +42,33 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
   useEffect(() => {
     loadData();
 
-    // Fetch securities catalog for quick selection with company names
-    fetchSecurities('', 5000)
+    // Fetch securities catalog for quick selection with company names (Shares only)
+    fetchSecurities('', 5000, true)
       .then((res) => {
         if (res && res.length > 0) {
           const seen = new Set<string>();
           const deduped: SecurityMasterItem[] = [];
           for (const s of res) {
+            if (!isShare(s)) continue;
             const sym = s.symbol.trim().toUpperCase();
             if (!seen.has(sym)) {
               seen.add(sym);
               deduped.push(s);
             }
           }
-          setSecurities(deduped);
+          const sorted = deduped.sort((a, b) => a.symbol.localeCompare(b.symbol));
+          setSecurities(sorted);
         }
       })
       .catch((err) => console.error('Failed to fetch securities catalog in Dashboard:', err));
   }, []);
 
-  // Filtered securities for search query matching symbol or company name
+  // Filtered securities for search query matching symbol or company name (Shares only)
   const filteredSecurities = useMemo(() => {
-    if (!searchQuery.trim()) return securities;
+    const baseShares = securities.filter(isShare);
+    if (!searchQuery.trim()) return baseShares;
     const q = searchQuery.trim().toUpperCase();
-    const matches = securities.filter((s) => {
+    const matches = baseShares.filter((s) => {
       return s.symbol.toUpperCase().includes(q) || (s.company_name && s.company_name.toUpperCase().includes(q));
     });
     return matches.sort((a, b) => {
@@ -73,9 +78,13 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
         if (aSym === 'ICICIBANK') return -1;
         if (bSym === 'ICICIBANK') return 1;
       }
+      if (q === '3M' || q === 'BIRLA3M') {
+        if (aSym === '3MINDIA') return -1;
+        if (bSym === '3MINDIA') return 1;
+      }
       if (aSym === q) return -1;
       if (bSym === q) return 1;
-      return 0;
+      return aSym.localeCompare(bSym);
     });
   }, [securities, searchQuery]);
 
@@ -84,7 +93,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
     const raw = stockToLoad || selectedStock || (filteredSecurities[0]?.symbol) || searchQuery.trim().toUpperCase();
     if (!raw) return;
     const clean = raw.includes('—') ? raw.split('—')[0].trim().toUpperCase() : raw.trim().toUpperCase();
-    const resolved = clean === 'ICICI' ? 'ICICIBANK' : clean;
+    const resolved = resolveCanonicalSymbol(clean);
     if (!resolved) return;
     setSelectedStock(resolved);
     sessionStorage.setItem('selected_stock_symbol', resolved);
@@ -98,8 +107,9 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
   };
 
   const handleSelectStock = (symbol: string) => {
-    setSelectedStock(symbol);
-    sessionStorage.setItem('selected_stock_symbol', symbol);
+    const resolved = resolveCanonicalSymbol(symbol);
+    setSelectedStock(resolved);
+    sessionStorage.setItem('selected_stock_symbol', resolved);
     if (onNavigate) {
       onNavigate('explorer');
     }
@@ -183,13 +193,12 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
               }
             }}
           >
-            <option value="">Select a stock...</option>
+            <option value="">Select a share / stock...</option>
             {filteredSecurities.length > 0 ? (
               filteredSecurities.slice(0, 500).map((s) => (
                 <option key={s.symbol} value={s.symbol}>
-                  {s.company_name && s.company_name.trim().toUpperCase() !== s.symbol.trim().toUpperCase()
-                    ? `${s.symbol} — ${s.company_name}`
-                    : s.symbol}
+                  {s.symbol} — {s.company_name && s.company_name.trim().toUpperCase() !== s.symbol.trim().toUpperCase() ? s.company_name : s.symbol}
+                  {isDelisted(s) ? ` [DELISTED ${s.last_traded_date ? s.last_traded_date.slice(0, 4) : ''}]` : ''}
                 </option>
               ))
             ) : selectedStock ? (
@@ -200,7 +209,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
           {/* Search Input */}
           <input
             type="text"
-            placeholder="🔍 Search stock.."
+            placeholder="🔍 Search share..."
             className="filter-num-input"
             style={{ width: 140, height: 36 }}
             value={searchQuery}

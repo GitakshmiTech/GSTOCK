@@ -56,6 +56,10 @@ export interface StockExplorerData {
   symbol: string;
   series: string;
   records_count: number;
+  is_active?: boolean;
+  is_delisted?: boolean;
+  status?: string;
+  status_message?: string | null;
   summary: {
     latest_close: number;
     total_return_pct: number;
@@ -63,6 +67,10 @@ export interface StockExplorerData {
     max_drawdown_pct: number;
     start_date: string;
     end_date: string;
+    is_active?: boolean;
+    is_delisted?: boolean;
+    status?: string;
+    status_message?: string | null;
   };
   data: StockPriceRecord[];
 }
@@ -82,6 +90,12 @@ export interface SeasonalityMatrixSection {
 
 export interface SeasonalityData {
   symbol: string;
+  start_date?: string | null;
+  end_date?: string | null;
+  is_active?: boolean;
+  is_delisted?: boolean;
+  status?: string;
+  status_message?: string | null;
   monthly_averages: Record<string, number>;
   win_rates: Record<string, { positive_pct: number; total_years: number }>;
   heatmap: HeatmapRow[];
@@ -103,6 +117,11 @@ export interface SecurityMasterItem {
   company_name: string | null;
   isin: string | null;
   status: string;
+  first_traded_date?: string | null;
+  last_traded_date?: string | null;
+  is_active?: boolean;
+  is_delisted?: boolean;
+  trading_status?: string;
 }
 
 export interface StockComparisonStat {

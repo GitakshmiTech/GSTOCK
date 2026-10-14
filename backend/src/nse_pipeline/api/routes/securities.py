@@ -15,8 +15,9 @@ router = APIRouter(prefix="/api/v1/securities", tags=["Securities"])
 def search_securities(
     q: str = Query(default="", description="Search symbol or company name"),
     limit: int = Query(default=5000, le=10000),
+    shares_only: bool = Query(default=True, description="Filter out ETFs and mutual funds, showing shares only"),
     db: Session = Depends(get_db),
 ):
     """Search registered securities in the security master."""
     repo = SecurityRepository(db)
-    return repo.search(query=q, limit=limit)
+    return repo.search(query=q, limit=limit, shares_only=shares_only)

@@ -202,3 +202,130 @@ def test_api_icici_alias_and_resolution(test_db_session: Session):
     assert sec_list[0]["company_name"] == "ICICI Bank Limited"
 
 
+def test_api_securities_shares_only_filters_etfs(test_db_session: Session):
+    """Verifies that securities endpoint filters out ETFs and mutual funds by default."""
+    app.dependency_overrides[get_db] = lambda: test_db_session
+    client = TestClient(app)
+
+    sec_repo = SecurityRepository(test_db_session)
+    sec_repo.get_or_create("HDFCBANK", "EQ", company_name="HDFC Bank Limited", isin="INE040A01034")
+    sec_repo.get_or_create("HDFCAMC", "EQ", company_name="HDFC Asset Management Company Limited", isin="INE127D01025")
+    sec_repo.get_or_create("HDFCBSE500", "EQ", company_name="HDFC BSE 500 ETF", isin="INF179KC1EZ4")
+    sec_repo.get_or_create("HDFCGOLD", "EQ", company_name="HDFC Gold ETF", isin="INF179KC1981")
+
+    # Also create NCDs and Rights Entitlements
+    sec_repo.get_or_create("1035UCL26", "EQ", company_name="Sec Re Ncd 10.35% Sr Iii", isin="INE583D07448")
+    sec_repo.get_or_create("3IINFO-RE", "BE", company_name="3I Infotech Ltd", isin="INE748C20012")
+    sec_repo.get_or_create("3IINFOLTD", "EQ", company_name="3i Infotech Limited", isin="INE748C01038")
+
+    # Default query (shares_only=true) returns only company shares, not ETFs, NCDs, or REs
+    res_shares = client.get("/api/v1/securities?q=HDFC")
+    assert res_shares.status_code == 200
+    shares_data = res_shares.json()
+    symbols = [s["symbol"] for s in shares_data]
+    assert "HDFCBANK" in symbols
+    assert "HDFCAMC" in symbols
+    assert "HDFCBSE500" not in symbols
+    assert "HDFCGOLD" not in symbols
+
+    # Check that NCDs and Rights Entitlements are excluded
+    res_3i = client.get("/api/v1/securities?q=3IINFO")
+    assert res_3i.status_code == 200
+    symbols_3i = [s["symbol"] for s in res_3i.json()]
+    assert "3IINFOLTD" in symbols_3i
+    assert "3IINFO-RE" not in symbols_3i
+
+    # Also create closed-ended mutual fund schemes
+    sec_repo.get_or_create("FTCSF3YDIV", "EQ", company_name=None, isin=None)
+    sec_repo.get_or_create("UTIUS64-CI", "EQ", company_name="Utius64-ci Limited", isin=None)
+
+    res_ncd = client.get("/api/v1/securities?q=1035UCL26")
+    assert res_ncd.status_code == 200
+    assert len(res_ncd.json()) == 0
+
+    res_ftc = client.get("/api/v1/securities?q=FTCSF")
+    assert res_ftc.status_code == 200
+    assert len(res_ftc.json()) == 0
+
+    res_uti = client.get("/api/v1/securities?q=UTIUS64")
+    assert res_uti.status_code == 200
+    assert len(res_uti.json()) == 0
+
+    # Explicit shares_only=false returns all securities including ETFs, NCDs, and REs
+    res_all = client.get("/api/v1/securities?q=HDFC&shares_only=false")
+    assert res_all.status_code == 200
+    all_symbols = [s["symbol"] for s in res_all.json()]
+    assert "HDFCBANK" in all_symbols
+    assert "HDFCAMC" in all_symbols
+    assert "HDFCBSE500" in all_symbols
+    assert "HDFCGOLD" in all_symbols
+
+
+def test_api_symbol_aliases_and_3m_continuity(test_db_session: Session):
+    """Test that historical renamings like BIRLA3M -> 3MINDIA combine prices and exclude unrelated ISINs."""
+    from datetime import date
+    from nse_pipeline.database.repositories.security_repository import SecurityRepository
+    from nse_pipeline.database.repositories.price_repository import PriceRepository
+
+    app.dependency_overrides[get_db] = lambda: test_db_session
+    client = TestClient(app)
+
+    sec_repo = SecurityRepository(test_db_session)
+    sec_3m = sec_repo.get_or_create("3MINDIA", "EQ", company_name="3M India Limited", isin="INE470A01017")
+    sec_birla = sec_repo.get_or_create("BIRLA3M", "EQ", company_name="3M India Limited", isin=None)
+    # Unrelated security whose ISIN happens to contain '3M'
+    sec_repo.get_or_create("MERCURYEV", "EQ", company_name="Mercury Ev-Tech Limited", isin="INE763M01028")
+
+    price_repo = PriceRepository(test_db_session)
+    price_repo.bulk_upsert(
+        [
+            {
+                "trade_date": date(2002, 5, 10),
+                "security_id": sec_birla.id,
+                "symbol": "BIRLA3M",
+                "series": "EQ",
+                "open_price": 500.0,
+                "high_price": 510.0,
+                "low_price": 490.0,
+                "close_price": 505.0,
+                "prev_close": 500.0,
+                "traded_quantity": 1000,
+                "turnover": 505000.0,
+                "source_format": "udiff_bhavcopy",
+                "source_file": "bhav2002.csv",
+            },
+            {
+                "trade_date": date(2005, 8, 12),
+                "security_id": sec_3m.id,
+                "symbol": "3MINDIA",
+                "series": "EQ",
+                "open_price": 800.0,
+                "high_price": 820.0,
+                "low_price": 790.0,
+                "close_price": 810.0,
+                "prev_close": 800.0,
+                "traded_quantity": 2000,
+                "turnover": 1620000.0,
+                "source_format": "udiff_bhavcopy",
+                "source_file": "bhav2005.csv",
+            },
+        ]
+    )
+    test_db_session.commit()
+
+    # 1. Search '3M' should return 3MINDIA and BIRLA3M, but NOT MERCURYEV
+    res_search = client.get("/api/v1/securities?q=3M")
+    assert res_search.status_code == 200
+    search_syms = [s["symbol"] for s in res_search.json()]
+    assert "3MINDIA" in search_syms
+    assert "MERCURYEV" not in search_syms
+
+    # 2. Stock price history for 3MINDIA should seamlessly include BIRLA3M from 2002
+    res_prices = client.get("/api/v1/stocks/3MINDIA/prices")
+    assert res_prices.status_code == 200
+    prices_data = res_prices.json()
+    data_points = prices_data.get("prices") or prices_data.get("data")
+    assert len(data_points) == 2
+    dates = [p["trade_date"] for p in data_points]
+    assert "2002-05-10" in dates
+    assert "2005-08-12" in dates

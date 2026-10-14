@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState, useMemo } from 'react';
 import { ComparisonData, SecurityMasterItem } from '../types';
 import { fetchStockComparison, fetchSecurities } from '../services/api';
+import { isShare, resolveCanonicalSymbol, isDelisted, getDelistedNotice } from '../utils/securityUtils';
 import { LoadingState } from '../components/common/LoadingState';
 import { useTheme } from '../context/ThemeContext';
 
@@ -31,8 +32,8 @@ const QUICK_BASKETS = [
 export const MarketComparison: React.FC = () => {
   const [selectedSymbols, setSelectedSymbols] = useState<string[]>(() => {
     const stored = sessionStorage.getItem('selected_stock_symbol');
-    if (stored && stored !== 'ICICI') {
-      return [stored, 'RELIANCE'];
+    if (stored) {
+      return [resolveCanonicalSymbol(stored), 'RELIANCE'];
     }
     return ['RELIANCE', 'SBIN'];
   });
@@ -54,31 +55,34 @@ export const MarketComparison: React.FC = () => {
   const chartRef = useRef<HTMLDivElement>(null);
   const { chartTheme } = useTheme();
 
-  // Load securities catalog for fast dropdown selection
+  // Load securities catalog for fast dropdown selection (Shares only)
   useEffect(() => {
-    fetchSecurities('', 5000)
+    fetchSecurities('', 5000, true)
       .then((res) => {
         if (res && res.length > 0) {
           const seen = new Set<string>();
           const deduped: SecurityMasterItem[] = [];
           for (const s of res) {
+            if (!isShare(s)) continue;
             const sym = s.symbol.trim().toUpperCase();
             if (!seen.has(sym)) {
               seen.add(sym);
               deduped.push(s);
             }
           }
-          setSecurities(deduped);
+          const sorted = deduped.sort((a, b) => a.symbol.localeCompare(b.symbol));
+          setSecurities(sorted);
         }
       })
       .catch((err) => console.error('Failed to load securities in MarketComparison:', err));
   }, []);
 
-  // Filtered list of securities based on search query
+  // Filtered list of shares based on search query
   const filteredSecurities = useMemo(() => {
-    if (!searchQuery.trim()) return securities;
+    const baseShares = securities.filter(isShare);
+    if (!searchQuery.trim()) return baseShares;
     const q = searchQuery.trim().toUpperCase();
-    const matches = securities.filter(
+    const matches = baseShares.filter(
       (s) => s.symbol.toUpperCase().includes(q) || (s.company_name && s.company_name.toUpperCase().includes(q))
     );
     return matches.sort((a, b) => {
@@ -88,16 +92,18 @@ export const MarketComparison: React.FC = () => {
         if (aSym === 'ICICIBANK') return -1;
         if (bSym === 'ICICIBANK') return 1;
       }
+      if (q === '3M' || q === 'BIRLA3M') {
+        if (aSym === '3MINDIA') return -1;
+        if (bSym === '3MINDIA') return 1;
+      }
       if (aSym === q) return -1;
       if (bSym === q) return 1;
-      return 0;
+      return aSym.localeCompare(bSym);
     });
   }, [securities, searchQuery]);
 
   const resolveSymbol = (sym: string): string => {
-    const clean = sym.trim().toUpperCase();
-    if (clean === 'ICICI') return 'ICICIBANK';
-    return clean;
+    return resolveCanonicalSymbol(sym);
   };
 
   const loadComparison = (symbolsList: string[], startD?: string, endD?: string) => {
@@ -343,24 +349,23 @@ export const MarketComparison: React.FC = () => {
             value={dropdownValue}
             onChange={(e) => handleSelectFromDropdown(e.target.value)}
           >
-            <option value="">+ Select stock to add...</option>
+            <option value="">+ Select share to add...</option>
             {filteredSecurities.length > 0 ? (
-              filteredSecurities.slice(0, 500).map((s) => (
+              filteredSecurities.slice(0, 3000).map((s) => (
                 <option key={s.symbol} value={s.symbol}>
-                  {s.company_name && s.company_name.trim().toUpperCase() !== s.symbol.trim().toUpperCase()
-                    ? `${s.symbol} — ${s.company_name}`
-                    : s.symbol}
+                  {s.symbol} — {s.company_name && s.company_name.trim().toUpperCase() !== s.symbol.trim().toUpperCase() ? s.company_name : s.symbol}
+                  {isDelisted(s) ? ` [DELISTED ${s.last_traded_date ? s.last_traded_date.slice(0, 4) : ''}]` : ''}
                 </option>
               ))
             ) : (
-              <option value="">No securities found</option>
+              <option value="">No shares found</option>
             )}
           </select>
 
           {/* Search Input */}
           <input
             type="text"
-            placeholder="🔍 Search stock.."
+            placeholder="🔍 Search share..."
             className="filter-num-input"
             style={{ width: 140, height: 36 }}
             value={searchQuery}
@@ -428,6 +433,22 @@ export const MarketComparison: React.FC = () => {
                     ({compName})
                   </span>
                 )}
+                {isDelisted(sec) && (
+                  <span
+                    style={{
+                      fontSize: '9px',
+                      color: '#ef4444',
+                      fontWeight: 700,
+                      backgroundColor: 'rgba(239, 68, 68, 0.15)',
+                      padding: '1px 5px',
+                      borderRadius: '3px',
+                      letterSpacing: '0.4px',
+                    }}
+                    title={getDelistedNotice(sec) || 'Delisted on NSE'}
+                  >
+                    DELISTED
+                  </span>
+                )}
                 <button
                   onClick={() => handleRemoveSymbol(sym)}
                   style={{
@@ -462,6 +483,38 @@ export const MarketComparison: React.FC = () => {
           >
             Clear All
           </button>
+        </div>
+      )}
+
+      {selectedSymbols.some((sym) => {
+        const sec = securities.find((s) => s.symbol.toUpperCase() === sym.toUpperCase());
+        return isDelisted(sec);
+      }) && (
+        <div
+          style={{
+            marginTop: '12px',
+            marginBottom: '4px',
+            padding: '10px 14px',
+            borderRadius: '8px',
+            backgroundColor: 'rgba(245, 158, 11, 0.08)',
+            border: '1px solid rgba(245, 158, 11, 0.3)',
+            color: '#f59e0b',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+            fontSize: '12px',
+          }}
+        >
+          <span style={{ fontSize: '16px' }}>⚠️</span>
+          <div>
+            <strong>Delisted Stock in Comparison:</strong> Stock(s){' '}
+            <strong>
+              {selectedSymbols
+                .filter((sym) => isDelisted(securities.find((s) => s.symbol.toUpperCase() === sym.toUpperCase())))
+                .join(', ')}
+            </strong>{' '}
+            are delisted or inactive on NSE. Recent data stops at their final traded date.
+          </div>
         </div>
       )}
 

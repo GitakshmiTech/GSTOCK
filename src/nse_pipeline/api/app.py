@@ -14,7 +14,6 @@ from nse_pipeline.api.routes import (
     securities,
     stocks,
     users,
-    mongo,
 )
 
 app = FastAPI(
@@ -42,7 +41,6 @@ app.include_router(analytics.router)
 app.include_router(prices.router)
 app.include_router(securities.router)
 app.include_router(ingestion.router)
-app.include_router(mongo.router)
 
 
 @app.on_event("startup")

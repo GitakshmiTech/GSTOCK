@@ -1,14 +1,14 @@
 import React, { useEffect, useState, useMemo, useRef } from 'react';
 import { SeasonalityData, SecurityMasterItem } from '../types';
 import { fetchSeasonality, fetchSecurities } from '../services/api';
+import { isShare, resolveCanonicalSymbol, isDelisted, getDelistedNotice } from '../utils/securityUtils';
 import { SeasonalChart } from '../components/charts/SeasonalChart';
 import { LoadingState } from '../components/common/LoadingState';
-import { Search, ChevronDown, X, Check } from 'lucide-react';
+import { Search, ChevronDown, X, Check, AlertCircle } from 'lucide-react';
 
 type PeriodType = 'weekly' | 'monthly' | 'quarterly';
 type ReturnPresetType = 'all' | 'pos' | 'neg' | 'gain5' | 'loss5' | 'extreme' | 'custom';
 type YearPresetType = 'all' | 'last3' | 'last5' | 'last10' | 'custom';
-type DisplayModeType = 'dim' | 'hide';
 
 const MONTH_NAMES = [
   'January', 'February', 'March', 'April', 'May', 'June',
@@ -21,7 +21,7 @@ const WEEK_NAMES = Array.from({ length: 52 }, (_, i) => `W${i + 1}`);
 export const SeasonalAnalysis: React.FC = () => {
   const [symbol, setSymbol] = useState(() => {
     const stored = sessionStorage.getItem('selected_stock_symbol');
-    return stored === 'ICICI' ? 'ICICIBANK' : (stored || '');
+    return stored ? resolveCanonicalSymbol(stored) : '';
   });
   const [period, setPeriod] = useState<PeriodType>('monthly');
   const [data, setData] = useState<SeasonalityData | null>(null);
@@ -47,16 +47,16 @@ export const SeasonalAnalysis: React.FC = () => {
   const [returnPreset, setReturnPreset] = useState<ReturnPresetType>('all');
   const [minReturn, setMinReturn] = useState<string>('');
   const [maxReturn, setMaxReturn] = useState<string>('');
-  const [displayMode, setDisplayMode] = useState<DisplayModeType>('dim');
 
-  // Load Securities Master list on mount
+  // Load Securities Master list on mount (Shares only, excluding ETFs and mutual funds)
   useEffect(() => {
-    fetchSecurities('', 5000)
+    fetchSecurities('', 5000, true)
       .then((res) => {
         if (res && res.length > 0) {
           const seen = new Set<string>();
           const deduped: SecurityMasterItem[] = [];
           for (const s of res) {
+            if (!isShare(s)) continue;
             const sym = s.symbol.trim().toUpperCase();
             if (!seen.has(sym)) {
               seen.add(sym);
@@ -72,9 +72,7 @@ export const SeasonalAnalysis: React.FC = () => {
   }, []);
 
   const resolveSymbol = (sym: string): string => {
-    const clean = sym.trim().toUpperCase();
-    if (clean === 'ICICI') return 'ICICIBANK';
-    return clean;
+    return resolveCanonicalSymbol(sym);
   };
 
   const loadSeasonality = (sym: string, startD?: string, endD?: string) => {
@@ -137,18 +135,19 @@ export const SeasonalAnalysis: React.FC = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Filtered list of securities based on search query
+  // Filtered list of shares based on search query (excluding ETFs)
   const filteredSecurities = useMemo(() => {
     const raw = stockSearchQuery.trim();
-    if (!raw) return securities;
+    const baseShares = securities.filter(isShare);
+    if (!raw) return baseShares;
 
     // If query matches currently selected symbol + company, don't overfilter
     if (raw.toUpperCase() === stockDisplayTitle.toUpperCase() && !isDropdownOpen) {
-      return securities;
+      return baseShares;
     }
 
     const q = raw.includes('—') ? raw.split('—')[0].trim().toUpperCase() : raw.toUpperCase();
-    const matches = securities.filter(
+    const matches = baseShares.filter(
       (s) => s.symbol.toUpperCase().includes(q) || (s.company_name && s.company_name.toUpperCase().includes(q))
     );
     return matches.sort((a, b) => {
@@ -157,6 +156,10 @@ export const SeasonalAnalysis: React.FC = () => {
       if (q === 'ICICI') {
         if (aSym === 'ICICIBANK') return -1;
         if (bSym === 'ICICIBANK') return 1;
+      }
+      if (q === '3M' || q === 'BIRLA3M') {
+        if (aSym === '3MINDIA') return -1;
+        if (bSym === '3MINDIA') return 1;
       }
       if (aSym === q) return -1;
       if (bSym === q) return 1;
@@ -421,7 +424,6 @@ export const SeasonalAnalysis: React.FC = () => {
     applyReturnPreset('all');
     setCustomStartDate('');
     setCustomEndDate('');
-    setDisplayMode('dim');
     loadSeasonality(symbol);
   };
 
@@ -450,7 +452,6 @@ export const SeasonalAnalysis: React.FC = () => {
 
     if (isReturnFilterActive) {
       if (!matches) {
-        if (displayMode === 'hide') return 'matrix-tile tile-filtered-out';
         return val > 0 ? 'matrix-tile tile-positive tile-dimmed' : 'matrix-tile tile-negative tile-dimmed';
       }
       return val > 0 ? 'matrix-tile tile-positive tile-highlighted' : 'matrix-tile tile-negative tile-highlighted';
@@ -496,10 +497,52 @@ export const SeasonalAnalysis: React.FC = () => {
                 )}
               </span>
             )}
+            {(isDelisted(activeSec) || data?.is_delisted) && (
+              <span
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  fontSize: '11px',
+                  fontWeight: 700,
+                  color: '#ef4444',
+                  backgroundColor: 'rgba(239, 68, 68, 0.12)',
+                  padding: '4px 10px',
+                  borderRadius: '6px',
+                  border: '1px solid rgba(239, 68, 68, 0.3)',
+                  letterSpacing: '0.4px',
+                }}
+                title={getDelistedNotice(activeSec) || 'Delisted on NSE'}
+              >
+                <AlertCircle size={13} />
+                <span>DELISTED / INACTIVE ON NSE {activeSec?.last_traded_date ? `(${activeSec.last_traded_date.slice(0, 4)})` : ''}</span>
+              </span>
+            )}
           </div>
           <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '4px' }}>
             Historical Multi-Year Seasonal Return Distribution Matrix & Statistical Probability Analysis
           </div>
+          {(isDelisted(activeSec) || data?.is_delisted) && (
+            <div
+              style={{
+                marginTop: '12px',
+                padding: '10px 14px',
+                borderRadius: '8px',
+                backgroundColor: 'rgba(245, 158, 11, 0.08)',
+                border: '1px solid rgba(245, 158, 11, 0.3)',
+                color: '#f59e0b',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '10px',
+                fontSize: '12px',
+              }}
+            >
+              <AlertCircle size={18} style={{ flexShrink: 0, color: '#f59e0b' }} />
+              <div>
+                <strong style={{ color: '#fbbf24' }}>NSE Delisted / Suspended Notice:</strong> Current live data is not available on NSE for <strong>{symbol}</strong> because it was delisted or suspended from trading (last recorded trading session was <strong>{activeSec?.last_traded_date || data?.end_date || 'May 06, 2009'}</strong>). Full historical data archive is available below.
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="seasonal-header-row" style={{ alignItems: 'flex-start' }}>
@@ -534,7 +577,7 @@ export const SeasonalAnalysis: React.FC = () => {
                   outline: 'none',
                   transition: 'all 0.15s ease',
                 }}
-                placeholder="🔍 Search scrip or company (e.g. RELIANCE, TCS, INFY)..."
+                placeholder="🔍 Search share or company (e.g. RELIANCE, TCS, INFY)..."
                 value={stockSearchQuery}
                 onFocus={() => {
                   setIsDropdownOpen(true);
@@ -635,13 +678,29 @@ export const SeasonalAnalysis: React.FC = () => {
                     alignItems: 'center',
                   }}
                 >
-                  <span>SELECT SCRIP ({filteredSecurities.length} found)</span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span>SELECT SHARE ({filteredSecurities.length} found)</span>
+                    <span
+                      style={{
+                        fontSize: '9px',
+                        fontWeight: 700,
+                        padding: '1px 5px',
+                        borderRadius: '3px',
+                        backgroundColor: 'rgba(37, 99, 235, 0.12)',
+                        color: 'var(--accent)',
+                        letterSpacing: '0.5px',
+                        fontFamily: 'JetBrains Mono, monospace',
+                      }}
+                    >
+                      SHARES ONLY
+                    </span>
+                  </div>
                   <span style={{ fontSize: '10px', color: 'var(--text-muted)' }}>Click to load seasonal returns</span>
                 </div>
 
                 {filteredSecurities.length === 0 ? (
                   <div style={{ padding: '24px 12px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '13px' }}>
-                    No stocks found matching "{stockSearchQuery}"
+                    No equity shares found matching "{stockSearchQuery}"
                   </div>
                 ) : (
                   filteredSecurities.slice(0, 300).map((sec) => {
@@ -703,9 +762,46 @@ export const SeasonalAnalysis: React.FC = () => {
                           )}
                         </div>
 
-                        {isSelected && (
-                          <span style={{ color: 'var(--accent)', fontSize: '13px', fontWeight: 'bold' }}>✓</span>
-                        )}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
+                          {isDelisted(sec) ? (
+                            <span
+                              style={{
+                                fontSize: '9px',
+                                fontWeight: 700,
+                                padding: '2px 6px',
+                                borderRadius: '4px',
+                                backgroundColor: 'rgba(239, 68, 68, 0.15)',
+                                color: '#ef4444',
+                                border: '1px solid rgba(239, 68, 68, 0.3)',
+                                letterSpacing: '0.4px',
+                                whiteSpace: 'nowrap',
+                                fontFamily: 'JetBrains Mono, monospace',
+                              }}
+                              title={getDelistedNotice(sec) || 'Delisted / Inactive on NSE'}
+                            >
+                              DELISTED {sec.last_traded_date ? `(${sec.last_traded_date.slice(0, 4)})` : ''}
+                            </span>
+                          ) : (
+                            <span
+                              style={{
+                                fontSize: '9px',
+                                fontWeight: 600,
+                                padding: '1px 5px',
+                                borderRadius: '3px',
+                                backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                                color: '#10b981',
+                                border: '1px solid rgba(16, 185, 129, 0.25)',
+                                letterSpacing: '0.4px',
+                              }}
+                            >
+                              ACTIVE
+                            </span>
+                          )}
+
+                          {isSelected && (
+                            <span style={{ color: 'var(--accent)', fontSize: '13px', fontWeight: 'bold' }}>✓</span>
+                          )}
+                        </div>
                       </div>
                     );
                   })
@@ -908,25 +1004,6 @@ export const SeasonalAnalysis: React.FC = () => {
                 }}
               />
             </div>
-
-            {/* Display Mode Toggle: Dim vs Hide */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12 }}>
-              <span style={{ color: 'var(--text-muted)' }}>Mode:</span>
-              <button
-                className={`filter-chip-btn ${displayMode === 'dim' ? 'active' : ''}`}
-                onClick={() => setDisplayMode('dim')}
-                title="Dim non-matching cells in faint grayscale"
-              >
-                Dim Non-Match
-              </button>
-              <button
-                className={`filter-chip-btn ${displayMode === 'hide' ? 'active' : ''}`}
-                onClick={() => setDisplayMode('hide')}
-                title="Completely blank out non-matching cells"
-              >
-                Hide Non-Match
-              </button>
-            </div>
           </div>
 
           {/* C. ACTIVE FILTER STATS & RESET ROW */}
@@ -996,8 +1073,6 @@ export const SeasonalAnalysis: React.FC = () => {
                       {activeColumns.map((col) => {
                         const val = row[col] as number | null | undefined;
                         const formatted = formatReturn(val);
-                        const isMatch = checkReturnMatch(val);
-                        const shouldShow = isReturnFilterActive ? (displayMode === 'dim' || isMatch) : true;
 
                         return (
                           <td key={col} style={{ padding: 0 }}>
@@ -1009,7 +1084,7 @@ export const SeasonalAnalysis: React.FC = () => {
                               }}
                               title={getCellTooltip(row.year, col, val, formatted)}
                             >
-                              {shouldShow ? formatted : ''}
+                              {formatted}
                             </div>
                           </td>
                         );

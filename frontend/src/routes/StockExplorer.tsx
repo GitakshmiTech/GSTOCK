@@ -1,45 +1,47 @@
 import React, { useEffect, useState } from 'react';
 import { StockExplorerData, SecurityMasterItem } from '../types';
 import { fetchStockPrices, fetchSecurities } from '../services/api';
+import { isShare, resolveCanonicalSymbol, isDelisted, getDelistedNotice } from '../utils/securityUtils';
 import { PriceChart } from '../components/charts/PriceChart';
 import { VolumeChart } from '../components/charts/VolumeChart';
 import { MetricCard } from '../components/dashboard/MetricCard';
 import { LoadingState } from '../components/common/LoadingState';
+import { AlertCircle } from 'lucide-react';
 
 export const StockExplorer: React.FC = () => {
   const [symbol, setSymbol] = useState(() => {
     const stored = sessionStorage.getItem('selected_stock_symbol');
-    return stored === 'ICICI' ? 'ICICIBANK' : (stored || '');
+    return stored ? resolveCanonicalSymbol(stored) : '';
   });
   const [data, setData] = useState<StockExplorerData | null>(null);
   const [loading, setLoading] = useState(false);
   const [securities, setSecurities] = useState<SecurityMasterItem[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
 
-  // Load securities catalog for fast selection with company names
+  // Load securities catalog for fast selection with company names (Shares only)
   useEffect(() => {
-    fetchSecurities('', 5000)
+    fetchSecurities('', 5000, true)
       .then((res) => {
         if (res && res.length > 0) {
           const seen = new Set<string>();
           const deduped: SecurityMasterItem[] = [];
           for (const s of res) {
+            if (!isShare(s)) continue;
             const sym = s.symbol.trim().toUpperCase();
             if (!seen.has(sym)) {
               seen.add(sym);
               deduped.push(s);
             }
           }
-          setSecurities(deduped);
+          const sorted = deduped.sort((a, b) => a.symbol.localeCompare(b.symbol));
+          setSecurities(sorted);
         }
       })
       .catch((err) => console.error('Failed to fetch securities:', err));
   }, []);
 
   const resolveSymbol = (sym: string): string => {
-    const clean = sym.trim().toUpperCase();
-    if (clean === 'ICICI') return 'ICICIBANK';
-    return clean;
+    return resolveCanonicalSymbol(sym);
   };
 
   const loadStock = (sym: string) => {
@@ -75,12 +77,13 @@ export const StockExplorer: React.FC = () => {
       : symbol;
 
   const filteredSecurities = React.useMemo(() => {
-    if (!searchQuery.trim()) return securities;
+    const baseShares = securities.filter(isShare);
+    if (!searchQuery.trim()) return baseShares;
     const q = searchQuery.trim().toUpperCase();
-    const matches = securities.filter((s) => {
+    const matches = baseShares.filter((s) => {
       return s.symbol.toUpperCase().includes(q) || (s.company_name && s.company_name.toUpperCase().includes(q));
     });
-    // Ensure ICICIBANK is prioritized first when searching for ICICI
+    // Ensure canonical symbols are prioritized first when searching
     return matches.sort((a, b) => {
       const aSym = a.symbol.toUpperCase();
       const bSym = b.symbol.toUpperCase();
@@ -88,9 +91,13 @@ export const StockExplorer: React.FC = () => {
         if (aSym === 'ICICIBANK') return -1;
         if (bSym === 'ICICIBANK') return 1;
       }
+      if (q === '3M' || q === 'BIRLA3M') {
+        if (aSym === '3MINDIA') return -1;
+        if (bSym === '3MINDIA') return 1;
+      }
       if (aSym === q) return -1;
       if (bSym === q) return 1;
-      return 0;
+      return aSym.localeCompare(bSym);
     });
   }, [securities, searchQuery]);
 
@@ -100,7 +107,8 @@ export const StockExplorer: React.FC = () => {
       loadStock(symbol);
       return;
     }
-    const target = q === 'ICICI' ? 'ICICIBANK' : (filteredSecurities[0]?.symbol || q);
+    const resolved = resolveCanonicalSymbol(q);
+    const target = resolved !== q ? resolved : (filteredSecurities[0]?.symbol || q);
     loadStock(target);
   };
 
@@ -108,7 +116,30 @@ export const StockExplorer: React.FC = () => {
     <div style={{ paddingBottom: '20px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '16px' }}>
         <div>
-          <h2 style={{ fontSize: '18px', fontWeight: 600 }}>Interactive Chart Terminal — {companyTitle}</h2>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+            <h2 style={{ fontSize: '18px', fontWeight: 600, margin: 0 }}>Interactive Chart Terminal — {companyTitle}</h2>
+            {(isDelisted(activeSec) || data?.is_delisted) && (
+              <span
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  fontSize: '11px',
+                  fontWeight: 700,
+                  color: '#ef4444',
+                  backgroundColor: 'rgba(239, 68, 68, 0.12)',
+                  padding: '3px 8px',
+                  borderRadius: '6px',
+                  border: '1px solid rgba(239, 68, 68, 0.3)',
+                  letterSpacing: '0.4px',
+                }}
+                title={getDelistedNotice(activeSec) || 'Delisted / Inactive on NSE'}
+              >
+                <AlertCircle size={13} />
+                <span>DELISTED / INACTIVE ON NSE {activeSec?.last_traded_date ? `(${activeSec.last_traded_date.slice(0, 4)})` : ''}</span>
+              </span>
+            )}
+          </div>
           <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '2px' }}>
             Historical 26-Year Candlestick Price Action, Volume & Moving Averages
           </div>
@@ -122,13 +153,12 @@ export const StockExplorer: React.FC = () => {
             value={symbol}
             onChange={(e) => loadStock(e.target.value)}
           >
-            <option value="">Select a stock...</option>
+            <option value="">Select a share / stock...</option>
             {filteredSecurities.length > 0 ? (
               filteredSecurities.slice(0, 500).map((s) => (
                 <option key={s.symbol} value={s.symbol}>
-                  {s.company_name && s.company_name.trim().toUpperCase() !== s.symbol.trim().toUpperCase()
-                    ? `${s.symbol} — ${s.company_name}`
-                    : s.symbol}
+                  {s.symbol} — {s.company_name && s.company_name.trim().toUpperCase() !== s.symbol.trim().toUpperCase() ? s.company_name : s.symbol}
+                  {isDelisted(s) ? ` [DELISTED ${s.last_traded_date ? s.last_traded_date.slice(0, 4) : ''}]` : ''}
                 </option>
               ))
             ) : symbol ? (
@@ -156,6 +186,28 @@ export const StockExplorer: React.FC = () => {
           </button>
         </div>
       </div>
+
+      {(isDelisted(activeSec) || data?.is_delisted) && (
+        <div
+          style={{
+            marginBottom: '18px',
+            padding: '12px 16px',
+            borderRadius: '8px',
+            backgroundColor: 'rgba(245, 158, 11, 0.08)',
+            border: '1px solid rgba(245, 158, 11, 0.3)',
+            color: '#f59e0b',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px',
+            fontSize: '13px',
+          }}
+        >
+          <AlertCircle size={18} style={{ flexShrink: 0, color: '#f59e0b' }} />
+          <div>
+            <strong style={{ color: '#fbbf24' }}>NSE Delisted / Suspended Notice:</strong> Current live data is not available on NSE for <strong>{symbol}</strong> because it was delisted or suspended from trading (last recorded trade date: <strong>{activeSec?.last_traded_date || data?.summary?.end_date || 'May 06, 2009'}</strong>). Displaying complete historical archives.
+          </div>
+        </div>
+      )}
 
       {loading && <LoadingState message={`Loading historical data for ${companyTitle}...`} />}
 

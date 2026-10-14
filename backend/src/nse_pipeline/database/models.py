@@ -66,6 +66,23 @@ class Security(Base):
     prices = relationship("StockDailyHistory", back_populates="security")
     corporate_actions = relationship("CorporateAction", back_populates="security")
 
+    @property
+    def is_active(self) -> bool:
+        if self.status in ("DELISTED", "SUSPENDED", "INACTIVE"):
+            return False
+        if not self.last_traded_date:
+            return False
+        from datetime import date
+        return self.last_traded_date >= date(2026, 7, 15)
+
+    @property
+    def is_delisted(self) -> bool:
+        return not self.is_active
+
+    @property
+    def trading_status(self) -> str:
+        return "ACTIVE" if self.is_active else "DELISTED"
+
 
 class SecuritySymbolHistory(Base):
     __tablename__ = "security_symbol_history"

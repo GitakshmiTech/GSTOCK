@@ -12,8 +12,40 @@ from nse_pipeline.database.models import Security, StockDailyHistory
 
 # Canonical symbol aliases for historical entity mergers / renamings
 SYMBOL_ALIASES: dict[str, str] = {
+    "BIRLA3M": "3MINDIA",
     "ICICI": "ICICIBANK",
+    "UTIBANK": "AXISBANK",
+    "HEROHONDA": "HEROMOTOCO",
+    "ADANIEXPO": "ADANIENT",
+    "CENTURYTEX": "ABREL",
+    "BOOTSPHARM": "ABBOTINDIA",
+    "KALECONSUL": "ACCELYA",
+    "ADVANIORLI": "ADOR",
+    "ADORWELD": "ADOR",
 }
+
+# Mapping of canonical symbols to all tickers the entity ever traded under
+CANONICAL_FAMILIES: dict[str, list[str]] = {
+    "3MINDIA": ["3MINDIA", "BIRLA3M"],
+    "ICICIBANK": ["ICICIBANK", "ICICI"],
+    "AXISBANK": ["AXISBANK", "UTIBANK"],
+    "HEROMOTOCO": ["HEROMOTOCO", "HEROHONDA"],
+    "ADANIENT": ["ADANIENT", "ADANIEXPO"],
+    "ABREL": ["ABREL", "CENTURYTEX"],
+    "ABBOTINDIA": ["ABBOTINDIA", "BOOTSPHARM"],
+    "ACCELYA": ["ACCELYA", "KALECONSUL"],
+    "ADOR": ["ADOR", "ADORWELD", "ADVANIORLI"],
+}
+
+
+def resolve_query_symbols(symbol: str) -> list[str]:
+    """Resolves a symbol to all historical ticker symbols under that entity."""
+    clean = symbol.strip().upper()
+    canonical = SYMBOL_ALIASES.get(clean, clean)
+    family = CANONICAL_FAMILIES.get(canonical)
+    if family:
+        return list(dict.fromkeys([canonical] + family))
+    return [canonical]
 
 
 class PriceRepository:
@@ -34,14 +66,13 @@ class PriceRepository:
         related equity series (EQ, BE, SM, BZ) to seamlessly support stocks that migrated
         from SME (SM) to Mainboard (EQ) or entered surveillance (BE) periods, deduplicating
         by date with priority EQ > BE > SM > BZ. Automatically maps alias symbols like
-        ICICI to ICICIBANK for full 26-year continuous data.
+        BIRLA3M to 3MINDIA and ICICI to ICICIBANK for full 26-year continuous data.
         """
-        raw_sym = symbol.strip().upper()
-        sym = SYMBOL_ALIASES.get(raw_sym, raw_sym)
+        query_syms = resolve_query_symbols(symbol)
         # If specific non-standard series requested (e.g. debt/block deal), filter strictly
         if series and series.strip().upper() not in ("EQ", "ALL"):
             stmt = select(StockDailyHistory).where(
-                StockDailyHistory.symbol == sym,
+                StockDailyHistory.symbol.in_(query_syms),
                 StockDailyHistory.series == series.strip().upper(),
             )
             if start_date:
@@ -54,7 +85,7 @@ class PriceRepository:
         # Standard equity series: include EQ, BE, SM, BZ
         equity_series = ["EQ", "BE", "SM", "BZ"]
         stmt = select(StockDailyHistory).where(
-            StockDailyHistory.symbol == sym,
+            StockDailyHistory.symbol.in_(query_syms),
             StockDailyHistory.series.in_(equity_series),
         )
         if start_date:
@@ -85,12 +116,11 @@ class PriceRepository:
 
     def get_latest_price(self, symbol: str, series: str = "EQ") -> StockDailyHistory | None:
         """Fetch the most recent daily price for a symbol."""
-        raw_sym = symbol.strip().upper()
-        sym = SYMBOL_ALIASES.get(raw_sym, raw_sym)
+        query_syms = resolve_query_symbols(symbol)
         stmt = (
             select(StockDailyHistory)
             .where(
-                StockDailyHistory.symbol == sym,
+                StockDailyHistory.symbol.in_(query_syms),
                 StockDailyHistory.series == series.strip().upper(),
             )
             .order_by(desc(StockDailyHistory.trade_date))
