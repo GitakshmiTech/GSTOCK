@@ -1,0 +1,82 @@
+version: "3.8"
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: nse_mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root_secure_password
+      MYSQL_DATABASE: nse_market_data
+      MYSQL_USER: nse_app
+      MYSQL_PASSWORD: replace_with_secret
+    ports:
+      - "3306:3306"
+    volumes:
+      - nse_mysql_data:/var/lib/mysql
+      - ./migrations:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "nse_app", "-preplace_with_secret"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  setup_db:
+    build: .
+    container_name: nse_setup_db
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      - MYSQL_HOST=mysql
+      - MYSQL_PORT=3306
+      - MYSQL_DATABASE=nse_market_data
+      - MYSQL_USER=nse_app
+      - MYSQL_PASSWORD=replace_with_secret
+      - USE_SQLITE_FALLBACK=false
+    command: python -m nse_pipeline.cli.setup_database
+
+  scheduler:
+    build: .
+    container_name: nse_scheduler
+    restart: always
+    depends_on:
+      mysql:
+        condition: service_healthy
+      setup_db:
+        condition: service_completed_successfully
+    environment:
+      - MYSQL_HOST=mysql
+      - MYSQL_PORT=3306
+      - MYSQL_DATABASE=nse_market_data
+      - MYSQL_USER=nse_app
+      - MYSQL_PASSWORD=replace_with_secret
+      - USE_SQLITE_FALLBACK=false
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+    command: python -m nse_pipeline.scheduler.daily_scheduler
+
+  api:
+    build: .
+    container_name: nse_api
+    restart: always
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      - MYSQL_HOST=mysql
+      - MYSQL_PORT=3306
+      - MYSQL_DATABASE=nse_market_data
+      - MYSQL_USER=nse_app
+      - MYSQL_PASSWORD=replace_with_secret
+      - USE_SQLITE_FALLBACK=false
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+    command: uvicorn nse_pipeline.api.app:app --host 0.0.0.0 --port 8000
+
+volumes:
+  nse_mysql_data:

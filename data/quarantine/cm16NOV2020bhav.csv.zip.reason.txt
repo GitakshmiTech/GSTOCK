@@ -1,0 +1,1 @@
+Parsing failed for cm16NOV2020bhav.csv.zip: Provided path is not a valid zip archive: data/raw/2020/11/cm16NOV2020bhav.csv.zip

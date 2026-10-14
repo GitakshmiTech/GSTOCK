@@ -1,0 +1,9 @@
+[Unit]
+Description=Trigger NSE Market Data Daily Update at 4:00 PM IST
+
+[Timer]
+OnCalendar=*-*-* 16:00:00 Asia/Kolkata
+Persistent=true
+
+[Install]
+WantedBy=timers.target

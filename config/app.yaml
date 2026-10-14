@@ -1,0 +1,47 @@
+app:
+  name: "nse_market_data_pipeline"
+  env: "development"
+  timezone: "Asia/Kolkata"
+  log_level: "INFO"
+
+database:
+  dialect: "mysql"
+  host: "localhost"
+  port: 3306
+  database: "nse_market_data"
+  username: "nse_app"
+  password: "replace_with_secret"
+  pool_size: 10
+  max_overflow: 20
+  pool_recycle: 3600
+  echo: false
+
+daily_updater:
+  schedule_time: "16:00"
+  max_wait_minutes: 60
+  initial_retry_seconds: 60
+  max_retry_seconds: 600
+  download_timeout_seconds: 60
+  max_retries: 5
+
+backfill:
+  default_start_date: "2001-01-01"
+  default_end_date: "2026-10-08"
+  batch_days: 30
+  concurrent_downloads: 3
+
+storage:
+  raw_dir: "./data/raw"
+  processed_dir: "./data/processed"
+  quarantine_dir: "./data/quarantine"
+  exports_dir: "./data/exports"
+
+alerts:
+  email_enabled: false
+  smtp_host: "smtp.example.com"
+  smtp_port: 587
+  smtp_user: ""
+  smtp_password: ""
+  sender_email: "alerts@example.com"
+  recipient_emails:
+    - "admin@example.com"

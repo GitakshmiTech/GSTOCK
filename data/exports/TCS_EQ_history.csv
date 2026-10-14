@@ -1,0 +1,2 @@
+trade_date,symbol,series,open,high,low,close,last,prev_close,vwap,traded_quantity,turnover,no_of_trades,deliverable_quantity,deliverable_pct
+2024-07-08,TCS,EQ,3920.0,3960.0,3915.0,3952.1,,3910.0,3945.0,1850000,7300000000.0,,,

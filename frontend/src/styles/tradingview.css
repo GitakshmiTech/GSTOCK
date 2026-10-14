@@ -1,0 +1,685 @@
+/* TradingView Full Workstation Styles */
+
+.tv-workstation {
+  display: flex;
+  flex-direction: column;
+  background-color: #ffffff;
+  color: #131722;
+  border: 1px solid #e0e3eb;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  font-family: -apple-system, BlinkMacSystemFont, 'Trebuchet MS', Roboto, Ubuntu, sans-serif;
+  height: 820px;
+  position: relative;
+  margin-bottom: 24px;
+}
+
+/* Dark mode option */
+.tv-workstation.tv-dark {
+  background-color: #131722;
+  color: #d1d4dc;
+  border-color: #2a2e39;
+}
+
+/* 1. TOP GLOBAL TOOLBAR */
+.tv-top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 44px;
+  padding: 0 12px;
+  border-bottom: 1px solid #e0e3eb;
+  background-color: #ffffff;
+  font-size: 13px;
+  flex-shrink: 0;
+  user-select: none;
+}
+
+.tv-dark .tv-top-bar {
+  background-color: #1e222d;
+  border-color: #2a2e39;
+}
+
+.tv-top-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tv-top-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 8px;
+  border-radius: 4px;
+  border: none;
+  background: transparent;
+  color: #131722;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+
+.tv-dark .tv-top-btn {
+  color: #d1d4dc;
+}
+
+.tv-top-btn:hover {
+  background-color: #f0f3fa;
+}
+
+.tv-dark .tv-top-btn:hover {
+  background-color: #2a2e39;
+}
+
+.tv-search-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background-color: #f0f3fa;
+  padding: 5px 12px;
+  border-radius: 4px;
+  font-weight: 700;
+  font-size: 13px;
+  cursor: pointer;
+  border: 1px solid transparent;
+}
+
+.tv-dark .tv-search-chip {
+  background-color: #2a2e39;
+  color: #fff;
+}
+
+.tv-search-chip:hover {
+  border-color: #2962ff;
+}
+
+.tv-divider-v {
+  width: 1px;
+  height: 20px;
+  background-color: #e0e3eb;
+  margin: 0 4px;
+}
+
+.tv-dark .tv-divider-v {
+  background-color: #2a2e39;
+}
+
+.tv-timeframe-group {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.tv-tf-chip {
+  border: none;
+  background: transparent;
+  padding: 4px 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #787b86;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.tv-tf-chip.active {
+  color: #2962ff;
+  background-color: #e3edff;
+}
+
+.tv-dark .tv-tf-chip.active {
+  background-color: #2a344d;
+}
+
+.tv-top-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tv-trade-btn {
+  background-color: #2962ff;
+  color: #ffffff;
+  border: none;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.tv-upgrade-pill {
+  background-color: #131722;
+  color: #ffffff;
+  border: none;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.tv-dark .tv-upgrade-pill {
+  background-color: #f0f3fa;
+  color: #131722;
+}
+
+/* 2. MAIN BODY GRID */
+.tv-main-grid {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Left Drawing Toolbar */
+.tv-tool-rail {
+  width: 44px;
+  border-right: 1px solid #e0e3eb;
+  background-color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 8px 0;
+  gap: 4px;
+  flex-shrink: 0;
+  user-select: none;
+}
+
+.tv-dark .tv-tool-rail {
+  background-color: #1e222d;
+  border-color: #2a2e39;
+}
+
+.tv-rail-btn {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  color: #787b86;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-size: 15px;
+}
+
+.tv-rail-btn:hover {
+  background-color: #f0f3fa;
+  color: #131722;
+}
+
+.tv-dark .tv-rail-btn:hover {
+  background-color: #2a2e39;
+  color: #f0f3fa;
+}
+
+.tv-rail-btn.active {
+  background-color: #e3edff;
+  color: #2962ff;
+}
+
+.tv-dark .tv-rail-btn.active {
+  background-color: #2a344d;
+  color: #2962ff;
+}
+
+/* Center Chart Area */
+.tv-chart-center {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+  background-color: #ffffff;
+}
+
+.tv-dark .tv-chart-center {
+  background-color: #131722;
+}
+
+/* Top-Left Legend Overlay */
+.tv-chart-legend {
+  position: absolute;
+  top: 10px;
+  left: 14px;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  pointer-events: none;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+}
+
+.tv-legend-row-symbol {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  color: #131722;
+  font-size: 13px;
+}
+
+.tv-dark .tv-legend-row-symbol {
+  color: #f0f3fa;
+}
+
+.tv-legend-row-ohlc {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  color: #787b86;
+}
+
+.tv-val-up {
+  color: #089981;
+}
+
+.tv-val-down {
+  color: #f23645;
+}
+
+/* Floating Quick Buy / Sell Buttons (Top Left overlay from screenshot) */
+.tv-quick-order-panel {
+  position: absolute;
+  top: 60px;
+  left: 14px;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background-color: #ffffff;
+  border: 1px solid #e0e3eb;
+  border-radius: 4px;
+  padding: 3px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.tv-dark .tv-quick-order-panel {
+  background-color: #1e222d;
+  border-color: #2a2e39;
+}
+
+.tv-order-tag-sell {
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #f23645;
+  padding: 4px 8px;
+  border-radius: 3px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.tv-order-tag-buy {
+  background-color: #eff6ff;
+  border: 1px solid #bfdbfe;
+  color: #2563eb;
+  padding: 4px 8px;
+  border-radius: 3px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.tv-order-spread {
+  font-size: 10px;
+  color: #787b86;
+  padding: 0 4px;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* Canvas Viewport */
+.tv-canvas-container {
+  flex: 1;
+  width: 100%;
+  position: relative;
+}
+
+.tv-watermark {
+  position: absolute;
+  bottom: 30px;
+  left: 20px;
+  z-index: 2;
+  pointer-events: none;
+  font-weight: 800;
+  font-size: 18px;
+  color: rgba(0, 0, 0, 0.12);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  letter-spacing: -0.5px;
+}
+
+.tv-dark .tv-watermark {
+  color: rgba(255, 255, 255, 0.08);
+}
+
+/* Bottom Range Bar */
+.tv-bottom-range-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 36px;
+  padding: 0 12px;
+  border-top: 1px solid #e0e3eb;
+  background-color: #ffffff;
+  font-size: 11px;
+  color: #787b86;
+  font-family: 'JetBrains Mono', monospace;
+  flex-shrink: 0;
+}
+
+.tv-dark .tv-bottom-range-bar {
+  background-color: #1e222d;
+  border-color: #2a2e39;
+}
+
+.tv-range-pills {
+  display: flex;
+  gap: 2px;
+}
+
+.tv-range-chip {
+  border: none;
+  background: transparent;
+  color: #787b86;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 6px;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.tv-range-chip:hover {
+  background-color: #f0f3fa;
+  color: #131722;
+}
+
+.tv-dark .tv-range-chip:hover {
+  background-color: #2a2e39;
+  color: #fff;
+}
+
+.tv-range-chip.active {
+  background-color: #e3edff;
+  color: #2962ff;
+}
+
+/* 3. RIGHT SIDEBAR (Watchlist & Stock Details) */
+.tv-right-sidebar {
+  width: 330px;
+  border-left: 1px solid #e0e3eb;
+  background-color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.tv-dark .tv-right-sidebar {
+  background-color: #1e222d;
+  border-color: #2a2e39;
+}
+
+/* Watchlist Header */
+.tv-watchlist-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  border-bottom: 1px solid #e0e3eb;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.tv-dark .tv-watchlist-head {
+  border-color: #2a2e39;
+}
+
+/* Watchlist Table */
+.tv-watchlist-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.tv-watchlist-table th {
+  padding: 6px 10px;
+  color: #787b86;
+  font-size: 11px;
+  font-weight: 600;
+  text-align: right;
+  border-bottom: 1px solid #e0e3eb;
+}
+
+.tv-watchlist-table th:first-child {
+  text-align: left;
+}
+
+.tv-watchlist-section-title {
+  padding: 6px 12px;
+  background-color: #f8fafc;
+  font-size: 10px;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.tv-dark .tv-watchlist-section-title {
+  background-color: #181d28;
+  color: #94a3b8;
+}
+
+.tv-watchlist-row {
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+
+.tv-watchlist-row:hover {
+  background-color: #f1f5f9;
+}
+
+.tv-dark .tv-watchlist-row:hover {
+  background-color: #262c3b;
+}
+
+.tv-watchlist-row.selected {
+  background-color: #e2e8f0;
+}
+
+.tv-dark .tv-watchlist-row.selected {
+  background-color: #334155;
+}
+
+.tv-watchlist-row td {
+  padding: 6px 10px;
+  text-align: right;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.tv-dark .tv-watchlist-row td {
+  border-color: #262c3b;
+}
+
+.tv-watchlist-row td:first-child {
+  text-align: left;
+  font-weight: 700;
+}
+
+.tv-sym-cell {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.tv-sym-icon {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+/* Stock Details & Performance Panel (Bottom half of Right Sidebar) */
+.tv-detail-panel {
+  border-top: 1px solid #e0e3eb;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background-color: #ffffff;
+  overflow-y: auto;
+}
+
+.tv-dark .tv-detail-panel {
+  border-color: #2a2e39;
+  background-color: #1e222d;
+}
+
+.tv-detail-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.tv-brand-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #1e3a8a, #2563eb);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.tv-brand-info h3 {
+  font-size: 14px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.tv-brand-info p {
+  font-size: 11px;
+  color: #787b86;
+  margin: 0;
+}
+
+.tv-big-quote {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.tv-big-price {
+  font-size: 26px;
+  font-weight: 800;
+  font-family: 'JetBrains Mono', monospace;
+  color: #131722;
+}
+
+.tv-dark .tv-big-price {
+  color: #fff;
+}
+
+.tv-big-delta {
+  font-size: 13px;
+  font-weight: 700;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.tv-market-status {
+  font-size: 11px;
+  color: #787b86;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+/* Performance 2x3 Grid (from screenshot) */
+.tv-perf-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: #131722;
+  margin-top: 4px;
+}
+
+.tv-dark .tv-perf-title {
+  color: #d1d4dc;
+}
+
+.tv-perf-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+}
+
+.tv-perf-box {
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #f23645;
+  border-radius: 4px;
+  padding: 6px 4px;
+  text-align: center;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.tv-perf-box.pos {
+  background-color: #f0fdf4;
+  border-color: #bbf7d0;
+  color: #089981;
+}
+
+.tv-perf-val {
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.tv-perf-lbl {
+  font-size: 10px;
+  color: #787b86;
+  margin-top: 2px;
+}
+
+/* Far-Right Icon Rail */
+.tv-far-right-rail {
+  width: 44px;
+  border-left: 1px solid #e0e3eb;
+  background-color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 8px 0;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.tv-dark .tv-far-right-rail {
+  background-color: #1e222d;
+  border-color: #2a2e39;
+}

@@ -1,0 +1,1 @@
+Parsing failed for BhavCopy_NSE_CM_0_0_0_20251105_F_0000.csv.zip: Provided path is not a valid zip archive: data/raw/2025/11/BhavCopy_NSE_CM_0_0_0_20251105_F_0000.csv.zip

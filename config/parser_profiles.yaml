@@ -1,0 +1,56 @@
+profiles:
+  legacy_bhavcopy:
+    version: "1.0.0"
+    description: "Legacy NSE Capital Market Bhavcopy (used until 2024-07-07)"
+    effective_from: "2001-01-01"
+    effective_to: "2024-07-07"
+    date_format: "%d-%b-%Y"
+    encoding: "utf-8"
+    file_patterns:
+      - "^cm[0-9]{2}[a-zA-Z]{3}[0-9]{4}bhav\\.csv(\\.zip)?$"
+      - "^cm.*bhav\\.csv$"
+    column_mappings:
+      SYMBOL: "symbol"
+      SERIES: "series"
+      OPEN: "open_price"
+      HIGH: "high_price"
+      LOW: "low_price"
+      CLOSE: "close_price"
+      LAST: "last_price"
+      PREVCLOSE: "prev_close"
+      TOTTRDQTY: "traded_quantity"
+      TOTTRDVAL: "turnover"
+      TOTALTRADES: "no_of_trades"
+      ISIN: "isin"
+      TIMESTAMP: "trade_date"
+
+  udiff_bhavcopy:
+    version: "2.0.0"
+    description: "Unified Data Interchange Format (UDiFF) Common Bhavcopy (from 2024-07-08)"
+    effective_from: "2024-07-08"
+    effective_to: "2026-10-08"
+    date_format: "%Y-%m-%d"
+    encoding: "utf-8"
+    segment_filter:
+      Sgmt: "CM"
+    instrument_filter:
+      FinInstrmTp: "STK"
+    file_patterns:
+      - "^BhavCopy_NSE_CM_.*\\.csv(\\.zip)?$"
+      - "^BhavCopy_NSE_.*\\.csv$"
+    column_mappings:
+      TckrSymb: "symbol"
+      SctySrs: "series"
+      OpnPric: "open_price"
+      HghPric: "high_price"
+      LwPric: "low_price"
+      ClsPric: "close_price"
+      LastPric: "last_price"
+      PrvsClsgPric: "prev_close"
+      TtlTradgVol: "traded_quantity"
+      TtlTrfVal: "turnover"
+      TtlNbOfTxsExctd: "no_of_trades"
+      ISIN: "isin"
+      TradDt: "trade_date"
+      UndrlygPric: "underlying_price"
+      SttlmPric: "settlement_price"

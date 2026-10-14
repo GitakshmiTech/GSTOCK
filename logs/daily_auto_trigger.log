@@ -1,0 +1,86 @@
+==========================================================
+[2026-10-13 16:23:40] Starting Automated 4:00 PM EOD Bhavcopy Ingestion
+==========================================================
+Running Daily EOD Update for 2026-10-13...
+2026-10-13 16:23:51 [WARNING] nse_pipeline.scheduler.job_lock (job_lock.py:37): Could not acquire lock for daily_update within 10s
+╭───────────────────── Traceback (most recent call last) ──────────────────────╮
+│ /Users/apple/nse_market_data_pipeline/src/nse_pipeline/cli/daily_update.py:2 │
+│ 6 in main                                                                    │
+│                                                                              │
+│   23 │   console.print(f"[bold cyan]Running Daily EOD Update for             │
+│      {target_date}...[/bold cyan]")                                          │
+│   24 │                                                                       │
+│   25 │   service = DailyUpdateService()                                      │
+│ ❱ 26 │   result = service.run_daily_update(target_date=target_date,          │
+│      force=force, wait_for_publication=wait)                                 │
+│   27 │                                                                       │
+│   28 │   table = Table(title="Daily Update Result")                          │
+│   29 │   table.add_column("Property", style="cyan")                          │
+│                                                                              │
+│ /Users/apple/nse_market_data_pipeline/src/nse_pipeline/services/daily_update │
+│ _service.py:41 in run_daily_update                                           │
+│                                                                              │
+│    38 │   │   run_date = target_date or today_ist()                          │
+│    39 │   │   job_id =                                                       │
+│       f"daily_{run_date.strftime('%Y%m%d')}_{uuid.uuid4().hex[:6]}"          │
+│    40 │   │                                                                  │
+│ ❱  41 │   │   with acquire_job_lock("daily_update", timeout_seconds=10):     │
+│    42 │   │   │   # Check calendar                                           │
+│    43 │   │   │   if not NSETradingCalendar.is_trading_day(run_date) and not │
+│       force:                                                                 │
+│    44 │   │   │   │   logger.info(f"{run_date} is a non-trading day (weekend │
+│       or exchange holiday). Skipping update.")                               │
+│                                                                              │
+│ /Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/contextlib │
+│ .py:141 in __enter__                                                         │
+│                                                                              │
+│   138 │   │   # they are only needed for recreation, which is not possible   │
+│       anymore                                                                │
+│   139 │   │   del self.args, self.kwds, self.func                            │
+│   140 │   │   try:                                                           │
+│ ❱ 141 │   │   │   return next(self.gen)                                      │
+│   142 │   │   except StopIteration:                                          │
+│   143 │   │   │   raise RuntimeError("generator didn't yield") from None     │
+│   144                                                                        │
+│                                                                              │
+│ /Users/apple/nse_market_data_pipeline/src/nse_pipeline/scheduler/job_lock.py │
+│ :57 in acquire_job_lock                                                      │
+│                                                                              │
+│   54 │   """Context manager for acquiring and releasing a job lock."""       │
+│   55 │   lock = JobLock(lock_name)                                           │
+│   56 │   if not lock.acquire(timeout_seconds=timeout_seconds):               │
+│ ❱ 57 │   │   raise LockAcquisitionError(f"Another instance of job            │
+│      '{lock_name}' is currently running.")                                   │
+│   58 │   try:                                                                │
+│   59 │   │   yield lock                                                      │
+│   60 │   finally:                                                            │
+╰──────────────────────────────────────────────────────────────────────────────╯
+LockAcquisitionError: Another instance of job 'daily_update' is currently 
+running.
+==========================================================
+[2026-10-13 16:24:11] Starting Automated 4:00 PM EOD Bhavcopy Ingestion
+==========================================================
+                                                                                
+ Usage: python -m nse_pipeline.cli.daily_update [OPTIONS]                       
+                                                                                
+ Executes the daily market data update.                                         
+                                                                                
+╭─ Options ────────────────────────────────────────────────────────────────────╮
+│ --date                -d               <str>  Specific trade date to run     │
+│                                               (YYYY-MM-DD, defaults to       │
+│                                               today)                         │
+│ --force               -f                      Force execution even if        │
+│                                               holiday/weekend or file exists │
+│ --wait                    --no-wait           Wait and retry if file not yet │
+│                                               published                      │
+│                                               [default: wait]                │
+│ --install-completion                          Install completion for the     │
+│                                               current shell.                 │
+│ --show-completion                             Show completion for the        │
+│                                               current shell, to copy it or   │
+│                                               customize the installation.    │
+│ --help                                        Show this message and exit.    │
+╰──────────────────────────────────────────────────────────────────────────────╯
+
+[2026-10-13 16:24:11] Daily Ingestion Workflow Finished.
+
